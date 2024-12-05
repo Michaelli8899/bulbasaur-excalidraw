@@ -279,7 +279,72 @@ export class LinearElementEditor {
         selectedPointsIndices.length === 1 &&
         element.points.length > 1
       ) {
-        const selectedIndex = selectedPointsIndices[0];
+        let selectedIndex = selectedPointsIndices[0];
+
+        // For elbow arrows with shift pressed
+        if (isElbowArrow(element)) {
+          const deltaX =
+            scenePointerX -
+            (element.x +
+              element.points[selectedIndex === 0 ? 1 : selectedIndex - 1][0]);
+          const deltaY =
+            scenePointerY -
+            (element.y +
+              element.points[selectedIndex === 0 ? 1 : selectedIndex - 1][1]);
+
+          // Calculate angle in degrees (0-360)
+          const angle =
+            ((Math.atan2(deltaY, deltaX) * 180) / Math.PI + 360) % 360;
+          const snapAngle = Math.round(angle / 15) * 15;
+          // Only remove midpoints for cardinal angles
+          if ([0, 90, 180, 270, 360].includes(snapAngle)) {
+
+            const { x: rx, y: ry } = element;
+            const [gridX, gridY] = getGridPoint(
+              scenePointerX,
+              scenePointerY,
+              null
+            );
+
+            const [lastCommittedX, lastCommittedY] =
+            element.lastCommittedPoint ?? [0, 0];
+
+            let dxFromLastCommitted = gridX - rx - lastCommittedX;
+            let dyFromLastCommitted = gridY - ry - lastCommittedY;
+
+            ({ width: dxFromLastCommitted, height: dyFromLastCommitted } =
+              getLockedLinearCursorAlignSize(
+                // actual coordinate of the last committed point
+                lastCommittedX + rx,
+                lastCommittedY + ry,
+                // cursor-grid coordinate
+                gridX,
+                gridY,
+              ));
+
+            mutateElbowArrow(
+              element,
+              elementsMap,
+              [
+                ...element.points.slice(0, -1),
+                pointFrom<LocalPoint>(
+                  lastCommittedX + dxFromLastCommitted,
+                  lastCommittedY + dyFromLastCommitted,
+                ),
+              ],
+              undefined,
+              undefined,
+              {
+                isDragging: true,
+                informMutation: false,
+              },
+            );
+            if (selectedIndex > 0) {
+              selectedIndex = 1;
+            }
+          }
+        }
+
         const referencePoint =
           element.points[selectedIndex === 0 ? 1 : selectedIndex - 1];
 
