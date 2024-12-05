@@ -302,11 +302,11 @@ export class LinearElementEditor {
             const [gridX, gridY] = getGridPoint(
               scenePointerX,
               scenePointerY,
-              null
+              null,
             );
 
             const [lastCommittedX, lastCommittedY] =
-            element.lastCommittedPoint ?? [0, 0];
+              element.lastCommittedPoint ?? [0, 0];
 
             let dxFromLastCommitted = gridX - rx - lastCommittedX;
             let dyFromLastCommitted = gridY - ry - lastCommittedY;
@@ -345,7 +345,7 @@ export class LinearElementEditor {
 
         const referencePoint =
           element.points[selectedIndex === 0 ? 1 : selectedIndex - 1];
-        
+
         const [width, height] = LinearElementEditor._getShiftLockedDelta(
           element,
           elementsMap,
