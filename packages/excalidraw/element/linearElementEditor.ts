@@ -321,7 +321,6 @@ export class LinearElementEditor {
                 gridX,
                 gridY,
               ));
-
             mutateElbowArrow(
               element,
               elementsMap,
@@ -381,7 +380,6 @@ export class LinearElementEditor {
 
         const deltaX = newDraggingPointPosition[0] - draggingPoint[0];
         const deltaY = newDraggingPointPosition[1] - draggingPoint[1];
-
         LinearElementEditor.movePoints(
           element,
           selectedPointsIndices.map((pointIndex) => {
@@ -996,7 +994,6 @@ export class LinearElementEditor {
         pointFrom(scenePointerX, scenePointerY),
         event[KEYS.CTRL_OR_CMD] ? null : app.getEffectiveGridSize(),
       );
-
       newPoint = pointFrom(
         width + lastCommittedPoint[0],
         height + lastCommittedPoint[1],
@@ -1591,10 +1588,23 @@ export class LinearElementEditor {
     );
 
     if (isElbowArrow(element)) {
-      return [
-        scenePointer[0] - referencePointCoords[0],
-        scenePointer[1] - referencePointCoords[1],
-      ];
+      const deltaX = scenePointer[0] - referencePointCoords[0];
+      const deltaY = scenePointer[1] - referencePointCoords[1];
+
+      // Calculate angle in degrees (0-360)
+      const angle = ((Math.atan2(deltaY, deltaX) * 180) / Math.PI + 360) % 360;
+
+      // Snap to nearest 30 degrees
+      const snapAngle = Math.round(angle / 15) * 15;
+
+      // Convert back to radians
+      const snapAngleRad = (snapAngle * Math.PI) / 180;
+
+      // Calculate length of movement
+      const length = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+
+      // Return movement based on snapped angle
+      return [length * Math.cos(snapAngleRad), length * Math.sin(snapAngleRad)];
     }
 
     const [gridX, gridY] = getGridPoint(
