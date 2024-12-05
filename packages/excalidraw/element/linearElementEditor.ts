@@ -298,7 +298,6 @@ export class LinearElementEditor {
           const snapAngle = Math.round(angle / 15) * 15;
           // Only remove midpoints for cardinal angles
           if ([0, 90, 180, 270, 360].includes(snapAngle)) {
-
             const { x: rx, y: ry } = element;
             const [gridX, gridY] = getGridPoint(
               scenePointerX,
@@ -346,7 +345,7 @@ export class LinearElementEditor {
 
         const referencePoint =
           element.points[selectedIndex === 0 ? 1 : selectedIndex - 1];
-
+        
         const [width, height] = LinearElementEditor._getShiftLockedDelta(
           element,
           elementsMap,
